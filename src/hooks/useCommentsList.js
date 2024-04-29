@@ -1,7 +1,13 @@
 import { useState } from "react";
 
 export default function useCommentsList() {
-  const [commentsList, setCommentsList] = useState([]);
+  const [commentsList, setCommentsList] = useState(() => {
+    const storedComments = localStorage.getItem("comments-list");
+    if (!storedComments) return [];
+    const commentsArray = JSON.parse(storedComments);
+    return commentsArray;
+  });
+
   function formatDate(date) {
     const day = date.getDate();
     const month = date.getMonth() + 1;
@@ -40,7 +46,11 @@ export default function useCommentsList() {
       id: id,
     };
 
-    setCommentsList((state) => [...state, comment]);
+    setCommentsList((state) => {
+      const newState = [...state, comment];
+      localStorage.setItem("comments-list", JSON.stringify(newState));
+      return newState;
+    });
   }
 
   return { commentsList, addComment };
